@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ProStore - Catálogo Premium</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* Custom dropdown animation */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 0.5rem;
+            min-width: 160px;
+            z-index: 1000;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+    <div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+        <header
+            class="sticky top-0 z-50 w-full bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+            <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-8">
+                <div class="flex items-center gap-2">
+                    <div class="bg-primary text-white p-1.5 rounded-lg flex items-center justify-center">
+                        <span class="material-symbols-outlined">inventory_2</span>
+                    </div>
+                    <h2 class="text-xl font-bold tracking-tight">ProStore</h2>
+                </div>
+                <div class="flex-1 max-w-md">
+                    <div class="relative group">
+                        <div
+                            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
+                            <span class="material-symbols-outlined text-xl">search</span>
+                        </div>
+                        <input
+                            class="block w-full pl-10 pr-3 py-2 border-0 bg-slate-100 dark:bg-slate-800 rounded-xl focus:ring-2 focus:ring-primary text-sm placeholder-slate-500"
+                            placeholder="Buscar productos premium..." type="text" />
+                    </div>
+                </div>
+                <nav class="hidden lg:flex items-center gap-6">
+                    <a class="text-sm font-semibold hover:text-primary transition-colors" href="index.html">Inicio</a>
+                    <a class="text-sm font-semibold hover:text-primary transition-colors" href="#">Soporte</a>
+                </nav>
+                <div class="flex items-center gap-2">
+                    <a href="carrito.html"
+                        class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-400 relative">
+                        <span class="material-symbols-outlined">shopping_bag</span>
+                        <span class="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full hidden"
+                            id="cart-dot"></span>
+                    </a>
+                    <div class="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-1"></div>
+                    <div id="auth-section" class="relative">
+                        <!-- Botón de perfil que despliega menu -->
+                        <!-- Usamos un enlace estático por defecto para que funcione al instante -->
+                        <a id="user-menu-btn" href="login.html"
+                            class="flex items-center gap-2 focus:outline-none group">
+                            <span id="login-text"
+                                class="hidden text-sm font-bold text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors">Inicia
+                                sesión</span>
+                            <div
+                                class="size-9 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center overflow-hidden group-hover:border-primary/50 transition-all">
+                                <span
+                                    class="material-symbols-outlined text-slate-400 group-hover:text-primary">person</span>
+                            </div>
+                        </a>
+                        <!-- Menú desplegable (oculto por defecto) -->
+                        <div id="user-dropdown"
+                            class="dropdown-menu bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-2 overflow-hidden">
+                            <a href="perfil.html"
+                                class="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                                <span class="material-symbols-outlined text-lg">account_circle</span>
+                                Mi perfil
+                            </a>
+                            <a href="mis_ventas.html"
+                                class="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                                <span class="material-symbols-outlined text-lg">receipt_long</span>
+                                Mis ventas
+                            </a>
+                            <div class="h-px bg-slate-100 dark:bg-slate-700 my-1"></div>
+                            <button onclick="Auth.logout()"
+                                class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors text-left font-medium">
+                                <span class="material-symbols-outlined text-lg">logout</span>
+                                Cerrar sesión
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto w-full px-6 py-8">
+            <div class="flex flex-wrap items-center gap-2 mb-6 text-sm text-slate-500 dark:text-slate-400">
+                <a class="hover:text-primary" href="index.html">Inicio</a>
+                <span class="material-symbols-outlined text-xs">chevron_right</span>
+                <span class="text-slate-900 dark:text-slate-100 font-medium">Todos los productos</span>
+            </div>
+            <div class="mb-10">
+                <h1 class="text-4xl font-black tracking-tight mb-3">¡Bienvenido a ProStore!</h1>
+                <p class="text-slate-500 dark:text-slate-400 max-w-2xl">Descubre nuestra selección exclusiva de
+                    productos premium. Calidad, estilo y rendimiento para el profesional moderno.</p>
+            </div>
+            <div class="flex flex-col lg:flex-row gap-8">
+                <aside class="w-full lg:w-64 flex-shrink-0">
+                    <div class="sticky top-24 space-y-8">
+                        <div>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 px-3">Categorías
+                            </h3>
+                            <div id="categories-container" class="space-y-1">
+                                <button
+                                    class="category-btn w-full flex items-center justify-between px-3 py-2 rounded-lg bg-primary/10 text-primary font-medium"
+                                    data-category="all">
+                                    <span class="text-sm">Todos los productos</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="price-filter-container" class="opacity-50 transition-opacity duration-300">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 px-3">Rango de
+                                Precios
+                            </h3>
+                            <div class="px-2 space-y-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="flex-1">
+                                        <label class="text-[10px] text-slate-400 uppercase font-bold">Mín</label>
+                                        <input type="number" id="min-price" value="0"
+                                            class="w-full text-xs bg-slate-100 dark:bg-slate-800 border-0 rounded-lg focus:ring-1 focus:ring-primary py-1.5" />
+                                    </div>
+                                    <div class="flex-1">
+                                        <label class="text-[10px] text-slate-400 uppercase font-bold">Máx</label>
+                                        <input type="number" id="max-price" value="2500"
+                                            class="w-full text-xs bg-slate-100 dark:bg-slate-800 border-0 rounded-lg focus:ring-1 focus:ring-primary py-1.5" />
+                                    </div>
+                                </div>
+                                <input id="price-range"
+                                    class="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-primary"
+                                    type="range" min="0" max="2500" value="2500" />
+                                <div class="flex justify-between items-center text-slate-500">
+                                    <span class="text-[10px] font-bold uppercase tracking-tighter">Límite:</span>
+                                    <span id="price-value"
+                                        class="text-xs font-medium px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded">$2,500</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pt-4 border-t border-slate-200 dark:border-slate-800">
+                            <button id="reset-filters-btn"
+                                class="w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                                Restablecer Filtros
+                            </button>
+                        </div>
+                    </div>
+                </aside>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between mb-6">
+                        <p class="text-sm text-slate-500">Mostrando <span id="showing-count"
+                                class="text-slate-900 dark:text-slate-100 font-semibold">0</span> de <span
+                                id="total-count">0</span> artículos</p>
+                    </div>
+                    <div id="product-grid"
+                        class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-12 min-h-[400px]">
+                        <!-- Los productos se cargan aquí -->
+                    </div>
+
+                    <!-- Paginación -->
+                    <div id="pagination-container"
+                        class="flex items-center justify-center gap-2 py-8 border-t border-slate-100 dark:border-slate-800">
+                        <!-- Los botones de paginación se cargan aquí -->
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="mt-20 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark py-12">
+            <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
+                <div class="col-span-1 md:col-span-1">
+                    <div class="flex items-center gap-2 mb-6">
+                        <div class="bg-primary text-white p-1.5 rounded-lg flex items-center justify-center">
+                            <span class="material-symbols-outlined">inventory_2</span>
+                        </div>
+                        <h2 class="text-xl font-bold tracking-tight">ProStore</h2>
+                    </div>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Elevando el espacio de trabajo moderno con
+                        herramientas meticulosamente elaboradas y esenciales tecnológicos de alta gama.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-6">Tienda</h4>
+                    <ul class="space-y-4 text-sm text-slate-500 dark:text-slate-400">
+                        <li><a class="hover:text-primary transition-colors" href="#">Todos los productos</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="#">Más vendidos</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="#">Tarjetas regalo</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-6">Soporte</h4>
+                    <ul class="space-y-4 text-sm text-slate-500 dark:text-slate-400">
+                        <li><a class="hover:text-primary transition-colors" href="#">Centro de ayuda</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="#">Devoluciones</a></li>
+                        <li><a class="hover:text-primary transition-colors" href="#">Contacto</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-6">Únete al Club</h4>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Recibe acceso anticipado a lanzamientos.
+                    </p>
+                    <div class="flex gap-2">
+                        <input
+                            class="flex-1 bg-slate-100 dark:bg-slate-800 border-0 rounded-lg text-sm px-4 py-2 focus:ring-2 focus:ring-primary"
+                            placeholder="Tu correo" type="email" />
+                        <button
+                            class="bg-slate-900 dark:bg-white dark:text-slate-900 text-white px-4 py-2 rounded-lg text-sm font-bold">Suscribirse</button>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="max-w-7xl mx-auto px-6 pt-12 mt-12 border-t border-slate-100 dark:border-slate-900 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-400">
+                <p>© 2024 ProStore System. Todos los derechos reservados.</p>
+            </div>
+        </footer>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/carrito.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

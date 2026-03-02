@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: { "display": ["Inter"] },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 0.5rem;
+            min-width: 200px;
+            z-index: 1000;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+    </style>
+    <title>Mi Perfil | ProStore</title>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+    <div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+            <!-- Header -->
+            <header
+                class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-10 py-3 sticky top-0 z-50">
+                <div class="flex items-center gap-3 text-primary">
+                    <div class="size-8 flex items-center justify-center bg-primary/10 rounded-lg cursor-pointer"
+                        onclick="window.location.href='index.html'">
+                        <span class="material-symbols-outlined text-primary">storefront</span>
+                    </div>
+                    <h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold cursor-pointer"
+                        onclick="window.location.href='index.html'">ProStore</h2>
+                </div>
+                <div class="flex flex-1 justify-end gap-8 items-center">
+                    <div class="flex items-center gap-9">
+                        <a class="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors"
+                            href="index.html">Inicio</a>
+                        <a class="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors"
+                            href="#">Soporte</a>
+                    </div>
+                    <!-- Auth Section -->
+                    <div id="auth-section" class="relative">
+                        <!-- Botón de perfil que despliega menu -->
+                        <a id="user-menu-btn" href="login.html"
+                            class="flex items-center gap-2 focus:outline-none group">
+                            <span id="login-text"
+                                class="hidden text-sm font-bold text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors">Inicia
+                                sesión</span>
+                            <div
+                                class="size-9 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center overflow-hidden group-hover:border-primary/50 transition-all">
+                                <span
+                                    class="material-symbols-outlined text-slate-400 group-hover:text-primary">person</span>
+                            </div>
+                        </a>
+                        <!-- Menú desplegable (oculto por defecto) -->
+                        <div id="user-dropdown"
+                            class="dropdown-menu bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl py-2 overflow-hidden">
+                            <!-- JS populated by app.js -->
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1 flex items-center justify-center p-6">
+                <div
+                    class="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                    <!-- Profile Hero -->
+                    <div class="h-32 bg-gradient-to-r from-primary/20 to-primary/5 relative">
+                        <div class="absolute -bottom-12 left-8 flex items-end gap-6">
+                            <div class="size-24 rounded-2xl bg-white dark:bg-slate-800 p-1 shadow-lg">
+                                <div
+                                    class="w-full h-full rounded-xl bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/20">
+                                    <img id="profile-avatar" class="w-full h-full object-cover"
+                                        src="https://ui-avatars.com/api/?name=User&background=135bec&color=fff" />
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <h1 id="display-name" class="text-2xl font-black text-slate-900 dark:text-white">
+                                    Cargando...</h1>
+                                <p id="display-role" class="text-sm font-bold text-primary">...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-16 p-8 space-y-8">
+                        <!-- Form Section -->
+                        <form id="profile-form" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Nombres -->
+                                <div class="flex flex-col gap-2">
+                                    <label
+                                        class="text-slate-700 dark:text-slate-300 text-xs font-black uppercase tracking-widest">Nombres</label>
+                                    <input id="perf-nombres" name="nombres" type="text"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary outline-none transition-all"
+                                        required readonly />
+                                </div>
+                                <!-- Apellidos -->
+                                <div class="flex flex-col gap-2">
+                                    <label
+                                        class="text-slate-700 dark:text-slate-300 text-xs font-black uppercase tracking-widest">Apellidos</label>
+                                    <input id="perf-apellidos" name="apellidos" type="text"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary outline-none transition-all"
+                                        required readonly />
+                                </div>
+                                <!-- Email (ReadOnly) -->
+                                <div class="flex flex-col gap-2">
+                                    <label
+                                        class="text-slate-700 dark:text-slate-300 text-xs font-black uppercase tracking-widest">Correo
+                                        Electrónico</label>
+                                    <input id="perf-email" type="email"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-500 cursor-not-allowed outline-none"
+                                        readonly />
+                                </div>
+                                <!-- Telefono -->
+                                <div class="flex flex-col gap-2">
+                                    <label
+                                        class="text-slate-700 dark:text-slate-300 text-xs font-black uppercase tracking-widest">Teléfono</label>
+                                    <input id="perf-telefono" name="telefono" type="tel"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary outline-none transition-all"
+                                        required readonly />
+                                </div>
+                                <!-- Dirección -->
+                                <div class="flex flex-col gap-2 md:col-span-2">
+                                    <label
+                                        class="text-slate-700 dark:text-slate-300 text-xs font-black uppercase tracking-widest">Dirección
+                                        de Envío</label>
+                                    <input id="perf-direccion" name="direccion" type="text"
+                                        placeholder="Ej: Calle Principal 123"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary outline-none transition-all"
+                                        readonly />
+                                </div>
+                                <!-- Ciudad -->
+                                <div class="flex flex-col gap-2">
+                                    <label
+                                        class="text-slate-700 dark:text-slate-300 text-xs font-black uppercase tracking-widest">Ciudad</label>
+                                    <input id="perf-ciudad" name="ciudad" type="text" placeholder="Ej: Lima"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary outline-none transition-all"
+                                        readonly />
+                                </div>
+                                <!-- Código Postal -->
+                                <div class="flex flex-col gap-2">
+                                    <label
+                                        class="text-slate-700 dark:text-slate-300 text-xs font-black uppercase tracking-widest">Código
+                                        Postal</label>
+                                    <input id="perf-zip" name="zip" type="text" placeholder="Ej: 15001"
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary outline-none transition-all"
+                                        readonly />
+                                </div>
+                            </div>
+
+                            <!-- Password Section (Solo visible en edición) -->
+                            <div id="password-section" class="hidden flex flex-col gap-2 pt-2">
+                                <label
+                                    class="text-slate-700 dark:text-slate-300 text-xs font-black uppercase tracking-widest">Nueva
+                                    Contraseña (Dejar vacío para mantener)</label>
+                                <input id="perf-password" name="password" type="password"
+                                    class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary outline-none transition-all" />
+                            </div>
+
+                            <!-- Buttons -->
+                            <div
+                                class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                <button id="edit-btn" type="button"
+                                    class="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
+                                    <span class="material-symbols-outlined text-lg">edit</span>
+                                    Editar Datos
+                                </button>
+                                <button id="save-btn" type="submit"
+                                    class="hidden flex items-center gap-2 px-8 py-2.5 rounded-xl bg-primary text-white font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
+                                    <span class="material-symbols-outlined text-lg">save</span>
+                                    Guardar Cambios
+                                </button>
+                                <button id="cancel-btn" type="button"
+                                    class="hidden px-6 py-2.5 rounded-xl bg-rose-50 text-rose-500 font-bold hover:bg-rose-100 transition-all">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer
+                class="py-6 px-10 border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 flex items-center justify-between">
+                <p class="text-slate-500 text-xs">© 2024 ProStore Management.</p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/carrito.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/perfil.js"></script>
+</body>
+
+</html>

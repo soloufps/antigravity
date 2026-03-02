@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: { "display": ["Inter"] },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 0.5rem;
+            min-width: 200px;
+            z-index: 1000;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .dark .glass-card {
+            background: rgba(30, 41, 59, 0.8);
+        }
+    </style>
+    <title>Mis Ventas | ProStore Gestión de Ventas</title>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+    <div class="relative flex h-auto min-screen w-full flex-col overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+            <!-- Navigation -->
+            <header
+                class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-10 py-3 sticky top-0 z-50">
+                <div class="flex items-center gap-4 text-primary">
+                    <div class="size-8 flex items-center justify-center bg-primary/10 rounded-lg">
+                        <span class="material-symbols-outlined text-primary">analytics</span>
+                    </div>
+                    <h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold">ProStore Gestión de Ventas</h2>
+                </div>
+                <div class="flex flex-1 justify-end gap-8 items-center">
+                    <nav class="flex items-center gap-8">
+                        <a href="index.html" class="text-sm font-medium hover:text-primary transition-colors">Inicio</a>
+                        <a href="#" class="text-sm font-medium hover:text-primary transition-colors">Soporte</a>
+                        <!-- El link de Añadir Producto se inyectará dinámicamente por app.js -->
+                    </nav>
+                    <div id="auth-section" class="relative">
+                        <a id="user-menu-btn" href="login.html"
+                            class="flex items-center gap-3 p-1 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group">
+                            <span id="login-text"
+                                class="text-sm font-bold text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors">Inicia
+                                sesión</span>
+                            <div
+                                class="size-9 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center overflow-hidden group-hover:border-primary/50 transition-all">
+                                <span
+                                    class="material-symbols-outlined text-slate-400 group-hover:text-primary">person</span>
+                            </div>
+                        </a>
+                        <div id="user-dropdown"
+                            class="dropdown-menu bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 py-2 overflow-hidden">
+                            <!-- JS populated by app.js -->
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1 p-8">
+                <div class="mx-auto max-w-7xl space-y-8">
+                    <!-- Dashboard Header -->
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h1 class="text-3xl font-black tracking-tight">Historial de Ventas</h1>
+                            <p class="text-slate-500">Monitorea el rendimiento y las transacciones de tu tienda.</p>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="window.location.reload()"
+                                class="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-bold hover:bg-slate-50 transition-all">
+                                <span class="material-symbols-outlined text-sm">refresh</span>
+                                Actualizar página
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="glass-card p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <div
+                                class="size-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-4">
+                                <span class="material-symbols-outlined">payments</span>
+                            </div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Ingresos Totales
+                            </p>
+                            <h3 id="stat-revenue" class="text-2xl font-black">$0.00</h3>
+                        </div>
+                        <div class="glass-card p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <div
+                                class="size-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center mb-4">
+                                <span class="material-symbols-outlined">shopping_cart_checkout</span>
+                            </div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Ventas Realizadas
+                            </p>
+                            <h3 id="stat-sales" class="text-2xl font-black">0</h3>
+                        </div>
+                        <div class="glass-card p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <div
+                                class="size-10 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center mb-4">
+                                <span class="material-symbols-outlined">group</span>
+                            </div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Clientes
+                                Registrados</p>
+                            <h3 id="stat-clients" class="text-2xl font-black">0</h3>
+                        </div>
+                        <div class="glass-card p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <div
+                                class="size-10 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center mb-4">
+                                <span class="material-symbols-outlined">inventory</span>
+                            </div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Catálogo</p>
+                            <h3 id="stat-products" class="text-2xl font-black">0</h3>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <!-- Sales Table -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <div
+                                class="glass-card rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+                                <div
+                                    class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                                    <h2 class="font-bold text-lg">Registros de Supabase</h2>
+                                    <span
+                                        class="text-xs font-medium bg-primary/10 text-primary px-2 py-1 rounded">Tiempo
+                                        real</span>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left">
+                                        <thead>
+                                            <tr
+                                                class="bg-slate-50 dark:bg-slate-800/50 text-[10px] uppercase font-black text-slate-400 tracking-widest">
+                                                <th class="px-6 py-3">ID Venta</th>
+                                                <th class="px-6 py-3">Cliente</th>
+                                                <th class="px-6 py-3">Total</th>
+                                                <th class="px-6 py-3 text-center">Estado</th>
+                                                <th class="px-6 py-3">Método</th>
+                                                <th class="px-6 py-3">Fecha</th>
+                                                <th class="px-6 py-3">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="sales-table-body"
+                                            class="divide-y divide-slate-100 dark:divide-slate-800">
+                                            <tr>
+                                                <td colspan="5" class="px-6 py-8 text-center text-slate-500">Cargando
+                                                    base de datos...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Clients Section -->
+                        <div class="space-y-6">
+                            <div
+                                class="glass-card rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
+                                <h2 class="font-bold mb-6 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary">group</span>
+                                    Clientes (Tabla Supabase)
+                                </h2>
+                                <div id="clients-list" class="space-y-4">
+                                    <p class="text-sm text-slate-500">Buscando registros...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detail Section -->
+                    <div id="sale-detail-section"
+                        class="hidden glass-card rounded-2xl border border-primary/30 shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+                        <div
+                            class="bg-primary/5 px-6 py-4 flex items-center justify-between border-b border-primary/10">
+                            <div>
+                                <h3 class="font-bold text-primary">Detalles de Venta #<span id="detail-id">0</span></h3>
+                            </div>
+                            <button onclick="document.getElementById('sale-detail-section').classList.add('hidden')"
+                                class="size-8 rounded-full hover:bg-primary/10 flex items-center justify-center transition-colors">
+                                <span class="material-symbols-outlined text-sm">close</span>
+                            </button>
+                        </div>
+                        <div id="detail-content" class="p-6"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/carrito.js"></script>
+    <script src="js/app.js"></script> <!-- Cargar app.js para avatar y links dinámicos -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Guard Estricto de Admin
+            const isManager = await Auth.isAdmin();
+            if (!isManager) {
+                alert('Acceso restringido: Solo administradores pueden ver la gestión de ventas.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // loadDashboard ya se encarga de lo demás
+            loadDashboard();
+        });
+
+        async function loadDashboard() {
+            try {
+                const stats = await API.getStatistics();
+                document.getElementById('stat-revenue').textContent = `$${stats.totalRevenue.toLocaleString()}`;
+                document.getElementById('stat-sales').textContent = stats.totalSales;
+                document.getElementById('stat-clients').textContent = stats.clientCount;
+                document.getElementById('stat-products').textContent = stats.productCount;
+
+                const sales = await API.getSales();
+                console.log('[DEBUG UI] Sales array length:', sales.length);
+                const tableBody = document.getElementById('sales-table-body');
+                if (sales.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-slate-400">Sin ventas en la base de datos.</td></tr>';
+                } else {
+                    tableBody.innerHTML = sales.map(s => {
+                        const statusClass = s.estado === 'PAGADA' ? 'bg-emerald-100 text-emerald-700' :
+                            s.estado === 'PENDIENTE' ? 'bg-orange-100 text-orange-700' :
+                                'bg-slate-100 text-slate-600';
+
+                        return `
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td class="px-6 py-4 text-sm font-bold">#${s.id_venta}</td>
+                            <td class="px-6 py-4">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-medium">${s.cliente?.nombres || 'Desconocido'} ${s.cliente?.apellidos || ''}</span>
+                                    <span class="text-[10px] text-slate-400">${s.cliente?.email || 'N/A'}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 font-bold text-primary">$${parseFloat(s.total || 0).toLocaleString()}</td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${statusClass}">${s.estado || 'N/A'}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-xs font-semibold text-slate-600 dark:text-slate-400">${s.metodo_pago || 'N/A'}</span>
+                            </td>
+                            <td class="px-6 py-4 text-xs text-slate-500">${new Date(s.fecha).toLocaleDateString()}</td>
+                            <td class="px-6 py-4">
+                                <button onclick="viewDetails(${s.id_venta})" class="bg-primary/10 text-primary px-3 py-1 rounded-lg text-xs font-bold hover:bg-primary hover:text-white transition-all">Detalles</button>
+                            </td>
+                        </tr>
+                    `}).join('');
+                }
+
+                const clients = await API.getClients();
+                const clientsList = document.getElementById('clients-list');
+                if (clients.length === 0) {
+                    clientsList.innerHTML = '<p class="text-sm text-slate-400">Sin clientes en la tabla.</p>';
+                } else {
+                    clientsList.innerHTML = clients.slice(0, 10).map(c => `
+                        <div class="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm transition-transform hover:scale-[1.02]">
+                            <div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                                <img src="https://ui-avatars.com/api/?name=${c.nombres}&background=random" class="w-full h-full rounded-full">
+                            </div>
+                            <div class="flex-1 overflow-hidden">
+                                <p class="text-sm font-bold truncate">${c.nombres} ${c.apellidos}</p>
+                                <p class="text-[10px] text-slate-400 truncate">${c.email}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Dashboard error:', error);
+                const tableBody = document.getElementById('sales-table-body');
+                if (tableBody) {
+                    tableBody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-rose-500 font-bold flex flex-col items-center gap-2">
+                        <span class="material-symbols-outlined text-3xl">error</span>
+                        Error al cargar datos: ${error.message}
+                    </td></tr>`;
+                }
+            }
+        }
+
+        async function viewDetails(idVenta) {
+            const detailSection = document.getElementById('sale-detail-section');
+            const detailContent = document.getElementById('detail-content');
+            document.getElementById('detail-id').textContent = idVenta;
+
+            detailSection.classList.remove('hidden');
+            detailContent.innerHTML = '<p class="text-center py-4">Consultando Supabase...</p>';
+
+            try {
+                const details = await API.getSaleDetails(idVenta);
+                detailContent.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-4 text-[10px] uppercase font-black text-slate-400 px-2">
+                            <div class="col-span-2">Producto</div>
+                            <div class="text-center">Cant.</div>
+                            <div class="text-right">Subtotal</div>
+                        </div>
+                        <div class="space-y-2">
+                            ${details.map(d => `
+                                <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+                                    <div class="flex items-center gap-3 col-span-2">
+                                        <div class="size-10 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+                                            <img src="${d.producto?.imagen_url}" class="w-full h-full object-cover">
+                                        </div>
+                                        <p class="text-xs font-bold truncate">${d.producto?.nombre}</p>
+                                    </div>
+                                    <div class="text-xs font-medium text-slate-500">x${d.cantidad}</div>
+                                    <div class="text-xs font-bold text-slate-900 dark:text-white">$${parseFloat(d.subtotal).toLocaleString()}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                detailContent.innerHTML = `<p class="text-rose-500 font-bold">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 0.5rem;
+            min-width: 200px;
+            z-index: 1000;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+    </style>
+    <title>Gestión de Productos | ProStore Admin</title>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+    <div class="relative flex h-auto min-screen w-full flex-col group/design-root overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+            <!-- Navigation Bar -->
+            <header
+                class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-10 py-3 sticky top-0 z-50">
+                <div class="flex items-center gap-8">
+                    <div class="flex items-center gap-4 text-primary">
+                        <div class="size-8 flex items-center justify-center bg-primary/10 rounded-lg">
+                            <span class="material-symbols-outlined text-primary">storefront</span>
+                        </div>
+                        <h2
+                            class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-[-0.015em]">
+                            Admin ProStore</h2>
+                    </div>
+                </div>
+                <div class="flex flex-1 justify-end gap-8">
+                    <div class="flex items-center gap-9">
+                        <a class="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors"
+                            href="index.html">Inicio</a>
+                        <a class="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors"
+                            href="#">Soporte</a>
+                    </div>
+                    <div id="auth-section" class="relative">
+                        <a id="user-menu-btn" href="login.html"
+                            class="flex items-center gap-2 focus:outline-none group">
+                            <span id="login-text"
+                                class="hidden text-sm font-bold text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors">Inicia
+                                sesión</span>
+                            <div
+                                class="size-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-200 dark:border-slate-700 group-hover:border-primary/50 transition-all">
+                                <span
+                                    class="material-symbols-outlined text-slate-400 group-hover:text-primary">person</span>
+                            </div>
+                        </a>
+                        <div id="user-dropdown"
+                            class="dropdown-menu bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 py-2 overflow-hidden">
+                            <!-- JS populated by app.js -->
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <main class="flex-1 overflow-y-auto pb-12">
+                <div class="mx-auto max-w-[1200px] px-6">
+                    <!-- Breadcrumbs & Header -->
+                    <div class="flex flex-col py-8">
+                        <div class="flex items-center gap-2 mb-4 text-slate-500 text-sm">
+                            <a class="hover:text-primary" href="index.html">Sistemas</a>
+                            <span class="material-symbols-outlined text-sm">chevron_right</span>
+                            <a class="hover:text-primary" href="#">Productos</a>
+                            <span class="material-symbols-outlined text-sm">chevron_right</span>
+                            <span class="text-slate-900 dark:text-slate-100 font-medium">Añadir Nuevo Producto</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <h1
+                                    class="text-slate-900 dark:text-slate-100 text-3xl font-black leading-tight tracking-[-0.033em]">
+                                    Crear Nuevo Producto</h1>
+                                <p class="text-slate-500 dark:text-slate-400 text-base font-normal">Completa los
+                                    detalles
+                                    principales para listar este artículo en tu tienda.</p>
+                            </div>
+                            <div class="flex gap-3">
+                                <button onclick="window.location.href='index.html'"
+                                    class="flex min-w-[100px] items-center justify-center rounded-lg h-11 px-6 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm font-bold hover:bg-slate-200 transition-all border border-slate-200 dark:border-slate-700">
+                                    <span>Descartar</span>
+                                </button>
+                                <button id="publish-btn"
+                                    class="flex min-w-[140px] items-center justify-center rounded-lg h-11 px-6 bg-primary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all">
+                                    <span>Publicar Producto</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <!-- Main Form Area -->
+                        <div class="lg:col-span-2 space-y-8">
+                            <!-- Section: General Information -->
+                            <section
+                                class="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
+                                <h2
+                                    class="text-slate-900 dark:text-slate-100 text-xl font-bold mb-6 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary">info</span>
+                                    Información del Producto
+                                </h2>
+                                <div class="space-y-6">
+                                    <div class="flex flex-col gap-2">
+                                        <label class="text-slate-700 dark:text-slate-300 text-sm font-semibold">Nombre
+                                            del
+                                            Producto</label>
+                                        <input id="product-title"
+                                            class="w-full h-12 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all dark:text-white"
+                                            placeholder="Ej. Audífonos Inalámbricos con Cancelación de Ruido"
+                                            type="text" />
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <label
+                                            class="text-slate-700 dark:text-slate-300 text-sm font-semibold">Descripción
+                                            del
+                                            Producto</label>
+                                        <textarea id="product-desc"
+                                            class="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all dark:text-white"
+                                            placeholder="Describe las características principales, materiales y beneficios..."
+                                            rows="6"></textarea>
+                                    </div>
+                                </div>
+                            </section>
+                            <!-- Section: Inventory & Pricing -->
+                            <section
+                                class="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
+                                <h2
+                                    class="text-slate-900 dark:text-slate-100 text-xl font-bold mb-6 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary">inventory_2</span>
+                                    Inventario y Precio
+                                </h2>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="flex flex-col gap-2">
+                                        <label class="text-slate-700 dark:text-slate-300 text-sm font-semibold">Precio
+                                            Base ($)</label>
+                                        <div class="relative">
+                                            <span
+                                                class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">$</span>
+                                            <input id="product-price"
+                                                class="w-full h-12 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 pl-8 pr-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all dark:text-white"
+                                                placeholder="0.00" type="number" step="0.01" />
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <label class="text-slate-700 dark:text-slate-300 text-sm font-semibold">Cantidad
+                                            en
+                                            Stock</label>
+                                        <input id="product-stock"
+                                            class="w-full h-12 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all dark:text-white"
+                                            placeholder="0" type="number" />
+                                    </div>
+                                </div>
+                            </section>
+                            <!-- Section: Media Upload -->
+                            <section
+                                class="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
+                                <h2
+                                    class="text-slate-900 dark:text-slate-100 text-xl font-bold mb-6 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary">image</span>
+                                    Imagen del Producto
+                                </h2>
+                                <div id="drop-zone"
+                                    class="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-12 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/20 hover:bg-primary/5 transition-all cursor-pointer group">
+                                    <div
+                                        class="size-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">
+                                        <span class="material-symbols-outlined text-3xl">upload_file</span>
+                                    </div>
+                                    <p class="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">Click para
+                                        subir
+                                        o arrastra y suelta</p>
+                                    <p class="text-sm text-slate-500 dark:text-slate-400">PNG, JPG o GIF (max. 10MB)
+                                    </p>
+                                    <input id="file-input" class="hidden" type="file" accept="image/*" />
+                                </div>
+                                <div id="image-preview-container"
+                                    class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 hidden">
+                                    <!-- Vista previa aquí -->
+                                    <div
+                                        class="relative group aspect-square rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+                                        <img id="image-preview" src="" class="w-full h-full object-cover" />
+                                        <button id="remove-image"
+                                            class="absolute top-2 right-2 size-8 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg transform scale-0 group-hover:scale-100 transition-transform">
+                                            <span class="material-symbols-outlined text-sm">close</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                        <!-- Sidebar Area -->
+                        <div class="space-y-8">
+                            <!-- Section: Organization -->
+                            <section
+                                class="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
+                                <h3
+                                    class="text-slate-900 dark:text-slate-100 font-bold mb-4 uppercase text-xs tracking-wider opacity-60">
+                                    Categoría</h3>
+                                <div class="space-y-5">
+                                    <div class="flex flex-col gap-2">
+                                        <select id="product-category"
+                                            class="w-full h-11 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-4 outline-none focus:ring-2 focus:ring-primary/20 text-sm">
+                                            <option value="">Cargando categorías...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </section>
+                            <!-- Section: Status -->
+                            <section
+                                class="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800">
+                                <h3
+                                    class="text-slate-900 dark:text-slate-100 font-bold mb-4 uppercase text-xs tracking-wider opacity-60">
+                                    Estado</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="size-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]">
+                                        </div>
+                                        <span class="text-sm font-medium">Activo</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500">Este producto será visible inmediatamente en la
+                                        tienda después de ser publicado.</p>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/carrito.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Guard de autenticación
+        if (!Auth.isLoggedIn()) {
+            window.location.href = 'login.html';
+        }
+
+        /**
+         * Inicializar UI de Usuario
+         */
+        async function initUserUI() {
+            const user = await Auth.getUser();
+            const authSection = document.getElementById('auth-section');
+            if (user && authSection) {
+                const userName = user.user_metadata?.full_name || user.email.split('@')[0];
+                const email = user.email;
+
+                // Actualizar displays
+                document.getElementById('user-name-display').textContent = userName;
+                document.getElementById('user-email-display').textContent = email;
+
+                const menuBtn = document.getElementById('user-menu-btn');
+                const dropdown = document.getElementById('user-dropdown');
+
+                menuBtn.innerHTML = `
+                    <div class="flex flex-col items-end hidden sm:flex mr-1 font-display">
+                        <span class="text-xs font-bold text-slate-900 dark:text-white">${userName}</span>
+                        <span class="text-[10px] text-slate-400 font-medium">Administrador</span>
+                    </div>
+                    <div class="size-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center overflow-hidden">
+                        <img class="w-full h-full object-cover" src="https://ui-avatars.com/api/?name=${userName}&background=135bec&color=fff" />
+                    </div>
+                `;
+
+                menuBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    dropdown.classList.toggle('active');
+                });
+
+                document.addEventListener('click', () => {
+                    dropdown.classList.remove('active');
+                });
+
+                dropdown.addEventListener('click', (e) => e.stopPropagation());
+            }
+        }
+        async function checkAdmin() {
+            const isManager = await Auth.isAdmin();
+            if (!isManager) {
+                alert('Acceso restringido: Solo administradores pueden gestionar productos.');
+                window.location.href = 'index.html';
+                return;
+            }
+            await initUserUI();
+        }
+        checkAdmin();
+
+        const fileInput = document.getElementById('file-input');
+        const dropZone = document.getElementById('drop-zone');
+        const previewContainer = document.getElementById('image-preview-container');
+        const previewImage = document.getElementById('image-preview');
+        const removeBtn = document.getElementById('remove-image');
+        let selectedFile = null;
+
+        /**
+         * Manejador de selección de archivos
+         */
+        fileInput.addEventListener('change', (e) => {
+            handleFile(e.target.files[0]);
+        });
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('bg-primary/5', 'border-primary');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('bg-primary/5', 'border-primary');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('bg-primary/5', 'border-primary');
+            handleFile(e.dataTransfer.files[0]);
+        });
+
+        function handleFile(file) {
+            if (file && file.type.startsWith('image/')) {
+                selectedFile = file;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImage.src = e.target.result;
+                    previewContainer.classList.remove('hidden');
+                    dropZone.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        removeBtn.addEventListener('click', () => {
+            selectedFile = null;
+            previewImage.src = '';
+            previewContainer.classList.add('hidden');
+            dropZone.classList.remove('hidden');
+            fileInput.value = '';
+        });
+
+        /**
+         * Cargar categorías dinámicamente
+         */
+        async function loadCategories() {
+            try {
+                const categories = await API.getCategories();
+                const select = document.getElementById('product-category');
+                if (categories.length > 0) {
+                    select.innerHTML = categories.map(cat => `
+                        <option value="${cat.id_tipo_producto}">${cat.descripcion}</option>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error cargando categorías:', error);
+            }
+        }
+        loadCategories();
+
+        /**
+         * Manejador de publicación
+         */
+        document.getElementById('publish-btn').addEventListener('click', async (e) => {
+            const btn = e.currentTarget;
+            const originalText = btn.innerHTML;
+
+            const name = document.getElementById('product-title').value;
+            const description = document.getElementById('product-desc').value;
+            const price = parseFloat(document.getElementById('product-price').value);
+            const stock = parseInt(document.getElementById('product-stock').value);
+            const categoryId = parseInt(document.getElementById('product-category').value);
+
+            if (!name || isNaN(price) || isNaN(stock) || !categoryId) {
+                alert('Por favor completa todos los campos obligatorios (Nombre, Precio, Stock, Categoría)');
+                return;
+            }
+
+            if (!selectedFile) {
+                alert('Por favor selecciona una imagen para el producto');
+                return;
+            }
+
+            try {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span><span>Publicando...</span>';
+
+                // 1. Subir imagen
+                const imageUrl = await API.uploadImage(selectedFile);
+
+                // 2. Crear producto
+                const product = {
+                    name,
+                    description,
+                    price,
+                    stock,
+                    categoryId,
+                    imageUrl
+                };
+
+                await API.addProduct(product);
+
+                alert('¡Producto publicado exitosamente!');
+                window.location.href = 'index.html';
+            } catch (error) {
+                alert('Error al publicar: ' + error.message);
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        });
+    </script>
+</body>
+
+</html>
