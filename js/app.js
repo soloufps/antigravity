@@ -425,10 +425,17 @@ function renderProducts(products, container) {
     }
     container.innerHTML = products.map(product => {
         const productJSON = JSON.stringify(product).replace(/"/g, '&quot;');
+
+        // Priorizar imagen_url (remoto), luego image (fallback), luego placeholder
+        const imgSrc = product.imagen_url || product.image || 'assets/imagenes/placeholder.png';
+
         return `
             <div class="group relative flex flex-col bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300">
                 <div class="relative aspect-square overflow-hidden bg-slate-100 dark:bg-slate-900">
-                    <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="${product.image}" alt="${product.name}">
+                    <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                         src="${imgSrc}" 
+                         alt="${product.name}"
+                         onerror="this.src='https://via.placeholder.com/300x250?text=Error+de+Carga'">
                 </div>
                 <div class="p-5 flex flex-col flex-1">
                     <div class="mb-2">

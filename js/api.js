@@ -1,4 +1,6 @@
 const API = (() => {
+    console.warn('--- [API CLOUD v4.0 ACTIVE] ---');
+    console.log('🚀 [API v3.1] MÓDULO CARGADO - MODO NUBE ACTIVO');
     // Configuración base desde supabase.js (asumiendo que están accesibles y globales)
     // Usamos ||= para evitar errores si no están definidos aún
     const getBaseUrl = () => (window.SUPABASE_URL || 'https://vvychuxlfqispeafymld.supabase.co') + '/rest/v1';
@@ -41,7 +43,9 @@ const API = (() => {
                 name: p.nombre,
                 price: parseFloat(p.precio),
                 category: p.tipo_producto?.descripcion || 'General',
+                // Mantenemos ambos nombres para evitar errores de renderizado
                 image: p.imagen_url || 'https://via.placeholder.com/300x250?text=No+Image',
+                imagen_url: p.imagen_url || 'https://via.placeholder.com/300x250?text=No+Image',
                 description: p.descripcion,
                 stock: p.stock
             }));
@@ -70,55 +74,40 @@ const API = (() => {
     };
 
     /**
-     * Sube una imagen (Prioridad Local para guardar en carpeta assets/imagenes)
+     * Sube una imagen a Supabase Storage (Método estándar para web hosteada)
      */
     const uploadImage = async (file) => {
-        const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
-        const relativeUrl = `assets/imagenes/${fileName}`;
-
         try {
-            console.log('[DEBUG API] Intentando subida al servidor local...');
+            console.log('[DEBUG API] Iniciando subida a Supabase Storage...');
 
-            const reader = new FileReader();
-            const base64Promise = new Promise((resolve) => {
-                reader.onload = () => resolve(reader.result);
-                reader.readAsDataURL(file);
-            });
-            const base64Data = await base64Promise;
+            // Generar un nombre único para evitar colisiones
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-            const localResponse = await fetch('http://localhost:3000/upload', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: fileName, data: base64Data })
-            });
-
-            if (localResponse.ok) {
-                console.log('[DEBUG API] Guardado localmente en carpeta assets/imagenes');
-                return relativeUrl; // Retornamos la URL relativa para guardar en Supabase
-            }
-        } catch (e) {
-            console.warn('[DEBUG API] Servidor local no detectado. Intentando respaldo en nube...');
-        }
-
-        // 2. Fallback a Supabase Storage (Si no hay servidor local)
-        try {
+            // Intentar subir al bucket 'productos'
             const { data, error } = await window.supabaseClient.storage
                 .from('productos')
                 .upload(fileName, file);
 
             if (error) {
                 if (error.message === 'Bucket not found') {
-                    throw new Error('Para guardar en tu carpeta local, ejecuta "iniciar_servidor.bat". Si quieres usar la nube, crea el bucket "productos" en Supabase.');
+                    throw new Error('EL BUCKET NO EXISTE: Ve a tu panel de Supabase > Storage y crea un bucket llamado "productos" (debe ser PÚBLICO).');
                 }
                 throw error;
             }
 
-            // Aunque se suba a Supabase, devolvemos la URL relativa como pidió el usuario
-            // Nota: Esto solo funcionará localmente si el usuario luego descarga la imagen
-            console.log('[DEBUG API] Subido a la nube, pero guardando URL relativa en la base de datos.');
-            return relativeUrl;
+            // Obtener la URL pública del archivo subido
+            const { data: { publicUrl } } = window.supabaseClient.storage
+                .from('productos')
+                .getPublicUrl(fileName);
+
+            console.log('[DEBUG API] Imagen subida exitosamente:', publicUrl);
+            if (!publicUrl.startsWith('http')) {
+                console.error('[CRITICAL] Supabase devolvió una URL relativa:', publicUrl);
+            }
+            return publicUrl;
         } catch (error) {
-            console.error('Error en la subida:', error);
+            console.error('Error en la subida a Supabase:', error);
             throw error;
         }
     };
