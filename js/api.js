@@ -113,10 +113,65 @@ const API = (() => {
     };
 
     /**
+     * Genera un código de producto automático basado en la categoría
+     */
+    const _generateProductCode = async (categoryId) => {
+        try {
+            // 1. Obtener el prefijo de la categoría
+            const categories = await getCategories();
+            const category = categories.find(c => c.id_tipo_producto === categoryId);
+            let prefix = 'GEN'; // General por defecto
+
+            if (category) {
+                const desc = category.descripcion.toLowerCase();
+                if (desc.includes('electrónicos') || desc.includes('tecnología')) prefix = 'TEC';
+                else if (desc.includes('vestir') || desc.includes('ropa')) prefix = 'ROP';
+                else if (desc.includes('hogar')) prefix = 'HOG';
+                else if (desc.includes('deportivos')) prefix = 'DEP';
+                else prefix = desc.substring(0, 3).toUpperCase();
+            }
+
+            // 2. Buscar el último código usado con ese prefijo
+            const url = `${getBaseUrl()}/producto?select=codigo&codigo=like.${prefix}-*&order=codigo.desc&limit=1`;
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: await getHeaders()
+            });
+
+            let nextNumber = 1;
+            if (response.ok) {
+                const data = await response.json();
+                if (data && data.length > 0 && data[0].codigo) {
+                    const lastCode = data[0].codigo;
+                    const parts = lastCode.split('-');
+                    if (parts.length === 2) {
+                        const lastNumber = parseInt(parts[1]);
+                        if (!isNaN(lastNumber)) {
+                            nextNumber = lastNumber + 1;
+                        }
+                    }
+                }
+            }
+
+            // 3. Formatear con ceros a la izquierda (ej. TEC-001)
+            const formattedNumber = nextNumber.toString().padStart(3, '0');
+            return `${prefix}-${formattedNumber}`;
+        } catch (error) {
+            console.error('Error generando código:', error);
+            return null; // Fallback para que no bloquee si falla la lógica del código
+        }
+    };
+
+    /**
      * Agrega un nuevo producto (POST)
      */
     const addProduct = async (product) => {
         try {
+            console.log('[DEBUG API] Iniciando creación de producto con código automático...');
+            // Generar código antes de insertar
+            const generatedCode = await _generateProductCode(product.categoryId);
+            console.log('[DEBUG API] Código generado:', generatedCode);
+
             const url = `${getBaseUrl()}/producto`;
             const body = JSON.stringify([{
                 nombre: product.name,
@@ -125,6 +180,7 @@ const API = (() => {
                 stock: product.stock,
                 id_tipo_producto: product.categoryId,
                 imagen_url: product.imageUrl,
+                codigo: generatedCode, // Insertar el código generado
                 estado: true
             }]);
 
@@ -134,7 +190,11 @@ const API = (() => {
                 body
             });
 
-            if (!response.ok) throw new Error('Error al insertar producto');
+            if (!response.ok) {
+                const errData = await response.json();
+                console.error('[API ERROR] Detalle:', errData);
+                throw new Error('Error al insertar producto');
+            }
             return await response.json();
         } catch (error) {
             console.error('API Error (addProduct):', error);
