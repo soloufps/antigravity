@@ -231,22 +231,24 @@ const Carrito = (() => {
             if (dtlError) throw dtlError;
 
             // 6.5 Descontar Stock
-            console.log('[STOCK] Actualizando inventario...');
-            const updatePromises = items.map(item => {
+            console.log('[STOCK] Actualizando inventario para ' + items.length + ' productos...');
+
+            for (const item of items) {
                 const dbProd = realProducts.find(p => p.id_producto === item.id);
                 const nuevoStock = dbProd.stock - item.quantity;
 
-                return window.supabaseClient
+                console.log(`[STOCK] Actualizando ${item.name}: ${dbProd.stock} -> ${nuevoStock}`);
+
+                const { error: updError } = await window.supabaseClient
                     .from('producto')
                     .update({ stock: nuevoStock })
                     .eq('id_producto', item.id);
-            });
 
-            const updateResults = await Promise.all(updatePromises);
-            const anyUpdateError = updateResults.find(r => r.error);
-            if (anyUpdateError) {
-                console.error('[STOCK ERROR] Falló la actualización crítica de stock:', anyUpdateError.error);
-                // No lanzamos error para no bloquear la venta ya creada, pero lo logueamos
+                if (updError) {
+                    console.error(`[STOCK ERROR] Falló actualizar ${item.name}:`, updError);
+                } else {
+                    console.log(`[STOCK OK] ${item.name} actualizado correctamente.`);
+                }
             }
 
             // 7. Finalizar
