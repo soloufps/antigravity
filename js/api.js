@@ -29,14 +29,20 @@ const API = (() => {
      */
     const getProducts = async () => {
         try {
+            console.log('[API] Fetching products...');
             const url = `${getBaseUrl()}/producto?select=*,tipo_producto(descripcion)&estado=eq.true&order=id_producto.desc`;
             const response = await fetch(url, {
                 method: 'GET',
                 headers: await getHeaders()
             });
 
-            if (!response.ok) throw new Error('Error al cargar productos');
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`Error al cargar productos (${response.status}): ${errText}`);
+            }
+
             const data = await response.json();
+            console.log(`[API] Successfully fetched ${data.length} products`);
 
             return data.map(p => ({
                 id: p.id_producto,

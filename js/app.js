@@ -29,14 +29,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             // Ocultar carrito para admin
-            const cartBtn = document.querySelector('a[href="carrito.html"]') ||
-                document.querySelector('button .material-symbols-outlined:contains("shopping_cart")')?.parentElement ||
-                document.querySelector('button:has(.material-symbols-outlined)'); // Fallback selector
-
-            // Búsqueda más robusta del botón del carrito
             const allButtons = document.querySelectorAll('button, a');
             allButtons.forEach(btn => {
-                if (btn.href?.includes('carrito.html') || btn.querySelector('.material-symbols-outlined')?.textContent.trim() === 'shopping_cart' || btn.querySelector('.material-symbols-outlined')?.textContent.trim() === 'shopping_bag') {
+                const isCartBtn = btn.getAttribute('href')?.includes('carrito.html') ||
+                    Array.from(btn.querySelectorAll('.material-symbols-outlined')).some(span =>
+                        ['shopping_cart', 'shopping_bag'].includes(span.textContent.trim())
+                    );
+
+                if (isCartBtn) {
                     btn.style.display = 'none';
                     console.log('[DEBUG UI] Hidden cart for admin');
                 }
@@ -57,7 +57,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Lógica para la página principal (index.html)
     const productGrid = document.getElementById('product-grid');
     if (productGrid) {
-        let allProducts = await API.getProducts();
+        console.log('[DEBUG UI] Initializing product grid...');
+        let allProducts = [];
+        try {
+            allProducts = await API.getProducts();
+            console.log('[DEBUG UI] Products fetched:', allProducts.length);
+        } catch (err) {
+            console.error('[DEBUG UI] Failed to fetch products:', err);
+        }
+
         let filteredProducts = [...allProducts];
 
         // Paginación
@@ -73,10 +81,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         // Ajustar el máximo del rango según el producto más caro
-        const maxProductPrice = allProducts.reduce((max, p) => Math.max(max, p.price), 0);
+        const maxProductPrice = allProducts.length > 0 ? allProducts.reduce((max, p) => Math.max(max, p.price || 0), 0) : 2500;
         const priceRange = document.getElementById('price-range');
         if (priceRange) {
-            priceRange.max = Math.ceil(maxProductPrice);
+            priceRange.max = Math.ceil(maxProductPrice) || 2500;
             priceRange.value = priceRange.max;
             activeFilters.maxPrice = priceRange.max;
             const maxInput = document.getElementById('max-price');
@@ -121,22 +129,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const applyFilters = () => {
+            console.log('[DEBUG UI] Applying filters:', activeFilters);
             filteredProducts = allProducts.filter(p => {
-                const searchLower = activeFilters.search.toLowerCase();
-                const matchesSearch = p.name.toLowerCase().includes(searchLower) ||
-                    p.category.toLowerCase().includes(searchLower);
+                if (!p) return false;
+
+                const searchLower = (activeFilters.search || '').toLowerCase();
+                const productName = (p.name || '').toLowerCase();
+                const productCategory = (p.category || '').toLowerCase();
+
+                const matchesSearch = productName.includes(searchLower) ||
+                    productCategory.includes(searchLower);
 
                 const matchesCategory = activeFilters.category === 'all' ||
-                    p.category.trim().toLowerCase() === activeFilters.category.trim().toLowerCase();
+                    productCategory.trim() === (activeFilters.category || '').trim().toLowerCase();
 
                 // Solo aplicar filtro de precio si ha sido modificado
                 let matchesPrice = true;
                 if (activeFilters.priceModified) {
-                    matchesPrice = p.price >= activeFilters.minPrice && p.price <= activeFilters.maxPrice;
+                    const price = p.price || 0;
+                    matchesPrice = price >= activeFilters.minPrice && price <= activeFilters.maxPrice;
                 }
 
                 return matchesSearch && matchesCategory && matchesPrice;
             });
+
+            console.log('[DEBUG UI] Filtered products:', filteredProducts.length);
 
             // Actualizar contadores
             const showingCount = document.getElementById('showing-count');
@@ -512,4 +529,3 @@ window.showToast = (title, message, type = 'success') => {
     }, 4000);
 };
 
-});
