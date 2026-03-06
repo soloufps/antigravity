@@ -337,6 +337,30 @@ const API = (() => {
         }
     };
 
+    /**
+     * Actualiza el stock de un producto (PATCH)
+     */
+    const updateProductStock = async (productId, newStock) => {
+        try {
+            const url = `${getBaseUrl()}/producto?id_producto=eq.${productId}`;
+            const response = await fetch(url, {
+                method: 'PATCH',
+                headers: await getHeaders(),
+                body: JSON.stringify({ stock: newStock })
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`Error en el servidor al actualizar stock (${response.status}): ${errText}`);
+            }
+            console.log(`[API] Stock actualizado para producto ${productId}: ${newStock}`);
+            return true;
+        } catch (error) {
+            console.error('API Error (updateProductStock):', error);
+            throw error;
+        }
+    };
+
     return {
         getProducts,
         getCategories,
@@ -347,6 +371,7 @@ const API = (() => {
         getClients,
         getStatistics,
         createSale,
-        createSaleDetails
+        createSaleDetails,
+        updateProductStock
     };
 })();

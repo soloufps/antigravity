@@ -189,7 +189,8 @@ const Carrito = (() => {
                 }
             }
 
-            if (checkoutBtn) checkoutBtn.textContent = 'Procesando...';
+            if (checkoutBtn) checkoutBtn.textContent = 'Procesando Venta...';
+
             // 4. Obtener id_cliente vinculado a la cuenta
             const { data: cliente, error: cliError } = await window.supabaseClient
                 .from('cliente')
@@ -199,23 +200,20 @@ const Carrito = (() => {
 
             if (cliError) throw new Error('No se encontró el perfil de cliente configurado para esta cuenta.');
 
-            // 5. Crear Venta
+            // 5. Crear Venta usando el módulo API
             const totals = updateTotals(items.reduce((acc, item) => acc + (item.price * item.quantity), 0));
-            const { data: venta, error: vntError } = await window.supabaseClient
-                .from('venta')
-                .insert([{
-                    id_cliente: cliente.id_cliente,
-                    total: totals.total,
-                    metodo_pago: metodoPago,
-                    estado: 'PENDIENTE'
-                    // Removido direccion_id ya que no existe en el esquema
-                }])
-                .select()
-                .single();
 
-            if (vntError) throw vntError;
+            const saleResult = await API.createSale({
+                id_cliente: cliente.id_cliente,
+                total: totals.total,
+                metodo_pago: metodoPago,
+                estado: 'COMPLETADO' // Cambiamos a COMPLETADO al procesar
+            });
 
-            // 6. Crear Detalles
+            const venta = Array.isArray(saleResult) ? saleResult[0] : saleResult;
+            if (!venta || !venta.id_venta) throw new Error('Error al generar el comprobante de venta.');
+
+            // 6. Crear Detalles usando el módulo API
             const detalles = items.map(item => ({
                 id_venta: venta.id_venta,
                 id_producto: item.id,
@@ -224,34 +222,22 @@ const Carrito = (() => {
                 subtotal: item.price * item.quantity
             }));
 
-            const { error: dtlError } = await window.supabaseClient
-                .from('detalle_venta')
-                .insert(detalles);
+            await API.createSaleDetails(detalles);
 
-            if (dtlError) throw dtlError;
-
-            // 6.5 Descontar Stock
-            console.log('[STOCK] Actualizando inventario para ' + items.length + ' productos...');
+            // 7. Descontar Stock Secuencialmente (Crítico para Supabase)
+            if (checkoutBtn) checkoutBtn.textContent = 'Actualizando Stock...';
 
             for (const item of items) {
                 const dbProd = realProducts.find(p => p.id_producto === item.id);
                 const nuevoStock = dbProd.stock - item.quantity;
 
-                console.log(`[STOCK] Actualizando ${item.name}: ${dbProd.stock} -> ${nuevoStock}`);
-
-                const { error: updError } = await window.supabaseClient
-                    .from('producto')
-                    .update({ stock: nuevoStock })
-                    .eq('id_producto', item.id);
-
-                if (updError) {
-                    console.error(`[STOCK ERROR] Falló actualizar ${item.name}:`, updError);
-                } else {
-                    console.log(`[STOCK OK] ${item.name} actualizado correctamente.`);
-                }
+                console.log(`[CARRITO] Actualizando stock de ${item.name}: ${dbProd.stock} -> ${nuevoStock}`);
+                await API.updateProductStock(item.id, nuevoStock);
             }
 
-            // 7. Finalizar
+            // 8. Finalizar con éxito
+            console.log('[COMPRA] Proceso finalizado exitosamente.');
+
             if (window.showToast) {
                 window.showToast('¡Éxito!', 'Compra realizada con éxito. Nos contactaremos pronto.');
             } else {
