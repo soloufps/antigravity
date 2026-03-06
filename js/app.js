@@ -430,26 +430,32 @@ function renderProducts(products, container) {
         return `
             <div class="group relative flex flex-col bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300">
                 <div class="relative aspect-square overflow-hidden bg-slate-100 dark:bg-slate-900">
-                    <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                    <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                          src="${imgSrc}" 
                          alt="${product.name}"
                          onerror="this.src='https://via.placeholder.com/300x250?text=Error+de+Carga'">
-                    
-                    <!-- Overlay de descripción que se despliega hacia abajo -->
-                    <div class="absolute inset-x-0 top-0 h-full bg-slate-900/80 backdrop-blur-sm -translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-in-out flex items-center justify-center p-6 text-center z-10">
-                        <p class="text-white text-sm leading-relaxed line-clamp-6">
-                            ${product.description || 'Sin descripción disponible.'}
-                        </p>
-                    </div>
                 </div>
                 <div class="p-5 flex flex-col flex-1">
                     <div class="mb-2">
-                        <p class="text-xs font-semibold text-primary uppercase tracking-wider mb-1">${product.category}</p>
-                        <h3 class="font-bold text-slate-900 dark:text-slate-100 leading-snug">${product.name}</h3>
+                        <p class="text-[10px] font-bold text-primary uppercase tracking-widest mb-1 opacity-70">${product.category}</p>
+                        <h3 class="font-bold text-slate-900 dark:text-slate-100 leading-tight text-base">${product.name}</h3>
                     </div>
-                    <div class="mt-auto flex items-center justify-between pt-4">
-                        <span class="text-lg font-bold">$${product.price.toLocaleString()}</span>
-                        <button class="flex items-center gap-1 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-md shadow-primary/20" 
+
+                    <!-- Descripción que se despliega hacia abajo sin tapar la imagen -->
+                    <div class="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] transition-all duration-500 ease-in-out">
+                        <div class="overflow-hidden">
+                            <p class="text-xs text-slate-500 dark:text-slate-400 py-3 border-t border-slate-100 dark:border-slate-800 mt-2 line-clamp-4 leading-relaxed">
+                                ${product.description || 'Sin descripción disponible.'}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto flex items-center justify-between pt-4 border-t border-slate-50 dark:border-slate-800/50">
+                        <div class="flex flex-col">
+                            <span class="text-xs text-slate-400 font-medium">Precio</span>
+                            <span class="text-lg font-black text-slate-900 dark:text-white">$${product.price.toLocaleString()}</span>
+                        </div>
+                        <button class="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-primary/20 active:scale-95" 
                                 onclick="Carrito.add(${productJSON}); updateCartBadge();">
                             <span class="material-symbols-outlined text-lg">add_shopping_cart</span>
                             Añadir
