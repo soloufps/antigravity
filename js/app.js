@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const categories = await API.getCategories();
             categories.forEach(cat => {
                 const btn = document.createElement('button');
-                btn.className = 'category-btn w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors';
+                btn.className = 'category-btn w-full flex items-center justify-start text-left gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors';
                 btn.dataset.category = cat.descripcion;
                 btn.innerHTML = `<span class="text-sm">${cat.descripcion}</span>`;
                 btn.addEventListener('click', () => {
@@ -404,16 +404,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 function updateCartBadge() {
     const items = Carrito.getItems();
     const count = items.reduce((acc, item) => acc + item.quantity, 0);
-    const badge = document.getElementById('cart-dot') || document.getElementById('cart-count');
+    const badge = document.getElementById('cart-count') || document.getElementById('cart-dot');
     if (badge) {
         if (count > 0) {
             badge.classList.remove('hidden');
-            if (badge.tagName !== 'SPAN' || badge.id !== 'cart-dot') {
-                badge.textContent = count;
-            }
+            badge.textContent = count;
         } else {
-            if (badge.id === 'cart-dot') badge.classList.add('hidden');
-            else badge.textContent = '0';
+            badge.classList.add('hidden');
+            badge.textContent = '0';
         }
     }
 }
