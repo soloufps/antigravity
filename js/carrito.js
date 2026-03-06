@@ -18,7 +18,12 @@ const Carrito = (() => {
             items.push({ ...product, quantity: 1 });
         }
         saveItems(items);
-        alert(`${product.name} añadido al carrito`);
+        if (window.updateCartBadge) updateCartBadge();
+
+        // Notificación Bien Bonita
+        if (window.showToast) {
+            window.showToast('¡Añadido!', `${product.name} se agregó al carrito.`);
+        }
     };
 
     const remove = (productId) => {
@@ -107,7 +112,8 @@ const Carrito = (() => {
     const checkout = async () => {
         const items = getItems();
         if (items.length === 0) {
-            alert('El carrito está vacío');
+            if (window.showToast) window.showToast('Carrito Vacío', 'Agrega algunos productos antes de comprar.', 'error');
+            else alert('El carrito está vacío');
             return;
         }
 
@@ -133,13 +139,17 @@ const Carrito = (() => {
             return;
         }
 
-        // 3. Verificar autenticación
+        // 3. Identificar Usuario (Sesión o Invitado)
         const user = await Auth.getUser();
-        if (!user) {
-            alert('Debes iniciar sesión para realizar la compra');
-            window.location.href = 'login.html';
+        let guestEmail = document.getElementById('chk-email')?.value;
+
+        if (!user && !guestEmail) {
+            if (window.showToast) window.showToast('Datos Faltantes', 'Por favor ingresa tu correo para continuar.', 'error');
+            else alert('Por favor ingresa tu correo para continuar');
             return;
         }
+
+        const emailToUse = user ? user.email : guestEmail;
 
         const checkoutBtn = document.getElementById('checkout-btn');
         if (checkoutBtn) {
@@ -148,14 +158,31 @@ const Carrito = (() => {
         }
 
         try {
-            // 4. Obtener id_cliente
-            const { data: cliente, error: cliError } = await window.supabaseClient
+            // 4. Obtener o Crear id_cliente
+            let { data: cliente, error: cliError } = await window.supabaseClient
                 .from('cliente')
                 .select('id_cliente')
-                .eq('email', user.email)
-                .single();
+                .eq('email', emailToUse)
+                .maybeSingle();
 
-            if (cliError) throw new Error('No se encontró el perfil de cliente');
+            if (cliError) throw new Error('Error al verificar perfil de cliente');
+
+            if (!cliente) {
+                console.log('[DEBUG CARRITO] Creando perfil de Invitado...');
+                const { data: newCli, error: createError } = await window.supabaseClient
+                    .from('cliente')
+                    .insert([{
+                        email: emailToUse,
+                        nombre: user?.user_metadata?.full_name || 'Invitado',
+                        apellido: '',
+                        telefono: telefono
+                    }])
+                    .select()
+                    .single();
+
+                if (createError) throw createError;
+                cliente = newCli;
+            }
 
             // 5. Crear Venta
             const totals = updateTotals(items.reduce((acc, item) => acc + (item.price * item.quantity), 0));
@@ -190,12 +217,20 @@ const Carrito = (() => {
             if (dtlError) throw dtlError;
 
             // 7. Finalizar
-            alert('¡Compra realizada con éxito! Nos contactaremos contigo pronto.');
+            if (window.showToast) {
+                window.showToast('¡Éxito!', 'Compra realizada con éxito. Nos contactaremos pronto.');
+            } else {
+                alert('¡Compra realizada con éxito! Nos contactaremos contigo pronto.');
+            }
+
             saveItems([]);
-            window.location.href = 'index.html';
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
 
         } catch (error) {
-            alert('Error al procesar la compra: ' + error.message);
+            if (window.showToast) window.showToast('Error', error.message, 'error');
+            else alert('Error al procesar la compra: ' + error.message);
             console.error(error);
             if (checkoutBtn) {
                 checkoutBtn.disabled = false;

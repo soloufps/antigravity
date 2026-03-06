@@ -456,7 +456,7 @@ function renderProducts(products, container) {
                             <span class="text-lg font-black text-slate-900 dark:text-white">$${product.price.toLocaleString()}</span>
                         </div>
                         <button class="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-primary/20 active:scale-95" 
-                                onclick="Carrito.add(${productJSON}); updateCartBadge();">
+                                onclick="Carrito.add(${productJSON});">
                             <span class="material-symbols-outlined text-lg">add_shopping_cart</span>
                             Añadir
                         </button>
@@ -466,3 +466,56 @@ function renderProducts(products, container) {
         `;
     }).join('');
 }
+
+// Sistema de Notificaciones "Bien Bonito"
+window.showToast = (title, message, type = 'success') => {
+    const container = document.getElementById('notification-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    const icon = type === 'success' ? 'check_circle' : 'error';
+    const bgColor = type === 'success' ? 'bg-primary/10 text-primary' : 'bg-rose-500/10 text-rose-500';
+
+    toast.className = `bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-xl shadow-2xl flex items-center gap-4 transition-all duration-500 translate-y-10 opacity-0 pointer-events-auto`;
+
+    toast.innerHTML = `
+        <div class="${bgColor} p-2.5 rounded-lg flex items-center justify-center">
+            <span class="material-symbols-outlined text-xl">${icon}</span>
+        </div>
+        <div class="flex-1">
+            <p class="font-bold text-slate-900 dark:text-white text-sm">${title}</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${message}</p>
+        </div>
+        <button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" onclick="this.parentElement.remove()">
+            <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+    `;
+
+    container.appendChild(toast);
+
+    // Animación de entrada
+    setTimeout(() => {
+        toast.classList.remove('translate-y-10', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+    }, 10);
+
+    // Auto-eliminar después de 4 segundos
+    setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-x-10');
+        setTimeout(() => toast.remove(), 500);
+    }, 4000);
+};
+
+// Mostrar campo de email si es invitado en carrito.html
+document.addEventListener('DOMContentLoaded', async () => {
+    if (window.location.pathname.includes('carrito.html')) {
+        const guestEmailContainer = document.getElementById('guest-email-container');
+        if (guestEmailContainer) {
+            const user = await Auth.getUser();
+            if (!user) {
+                guestEmailContainer.classList.remove('hidden');
+                console.log('[DEBUG CARRITO] Modo Invitado Activo');
+            }
+        }
+    }
+});
