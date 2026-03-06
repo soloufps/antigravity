@@ -343,9 +343,13 @@ const API = (() => {
     const updateProductStock = async (productId, newStock) => {
         try {
             const url = `${getBaseUrl()}/producto?id_producto=eq.${productId}`;
+            const reqHeaders = await getHeaders();
+            // Solicitamos a Supabase que devuelva las filas afectadas para verificar
+            reqHeaders['Prefer'] = 'return=representation';
+
             const response = await fetch(url, {
                 method: 'PATCH',
-                headers: await getHeaders(),
+                headers: reqHeaders,
                 body: JSON.stringify({ stock: newStock })
             });
 
@@ -353,7 +357,17 @@ const API = (() => {
                 const errText = await response.text();
                 throw new Error(`Error en el servidor al actualizar stock (${response.status}): ${errText}`);
             }
-            console.log(`[API] Stock actualizado para producto ${productId}: ${newStock}`);
+
+            const data = await response.json();
+
+            // Si Supabase devuelve un arreglo vacío, significa que RLS (Row Level Security) bloqueó el UPDATE
+            if (!data || data.length === 0) {
+                const errorMsg = `Permiso Denegado por Supabase (RLS): No se pudo actualizar el stock del ID ${productId}. Debes configurar las políticas RLS en tu tabla 'producto' para permitir UPDATE.`;
+                console.error('[API SECURITY ERROR]', errorMsg);
+                throw new Error(errorMsg);
+            }
+
+            console.log(`[API] Stock actualizado (Confirmado por DB) para producto ${productId}: ${newStock}`);
             return true;
         } catch (error) {
             console.error('API Error (updateProductStock):', error);
