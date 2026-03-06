@@ -434,6 +434,14 @@ function renderProducts(products, container) {
                          src="${imgSrc}" 
                          alt="${product.name}"
                          onerror="this.src='https://via.placeholder.com/300x250?text=Error+de+Carga'">
+                    
+                    <!-- Overlay de descripción al hacer hover -->
+                    <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-6 text-center">
+                        <p class="text-white text-sm leading-relaxed line-clamp-4">
+                            ${product.description || 'Sin descripción disponible.'}
+                        </p>
+                        <span class="mt-4 text-[10px] font-bold uppercase tracking-widest text-primary-light text-white/60">Ver detalle</span>
+                    </div>
                 </div>
                 <div class="p-5 flex flex-col flex-1">
                     <div class="mb-2">
