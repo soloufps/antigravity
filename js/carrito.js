@@ -207,9 +207,8 @@ const Carrito = (() => {
                     id_cliente: cliente.id_cliente,
                     total: totals.total,
                     metodo_pago: metodoPago,
-                    estado: 'PENDIENTE',
-                    direccion_id: null, // Podríamos guardar la dirección aquí si el esquema lo permite, o en un campo notas
-                    // Si no hay campo 'notas' en 'venta', lo logueamos o lo concatenamos con la dirección
+                    estado: 'PENDIENTE'
+                    // Removido direccion_id ya que no existe en el esquema
                 }])
                 .select()
                 .single();

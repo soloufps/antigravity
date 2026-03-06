@@ -70,6 +70,7 @@ const Auth = (() => {
                 nombres: userData.nombres,
                 apellidos: userData.apellidos,
                 email: userData.email,
+                documento: userData.documento,
                 telefono: userData.telefono,
                 password: userData.password,
                 estado: true

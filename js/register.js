@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 nombres: document.getElementById('reg-nombres').value,
                 apellidos: document.getElementById('reg-apellidos').value,
                 email: document.getElementById('reg-email').value,
+                documento: document.getElementById('reg-documento').value,
                 telefono: document.getElementById('reg-phone').value,
                 password: document.getElementById('reg-password').value
             };
