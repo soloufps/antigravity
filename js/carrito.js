@@ -12,6 +12,16 @@ const Carrito = (() => {
     const add = (product) => {
         let items = getItems();
         const existing = items.find(item => item.id === product.id);
+
+        // Validar stock disponible antes de añadir (basado en lo que ya hay en el carrito)
+        const currentInCart = existing ? existing.quantity : 0;
+        if (currentInCart >= (product.stock || 0)) {
+            if (window.showToast) {
+                window.showToast('Límite de Stock', 'No puedes añadir más unidades de las disponibles.', 'error');
+            }
+            return;
+        }
+
         if (existing) {
             existing.quantity += 1;
         } else {
@@ -159,10 +169,27 @@ const Carrito = (() => {
         const checkoutBtn = document.getElementById('checkout-btn');
         if (checkoutBtn) {
             checkoutBtn.disabled = true;
-            checkoutBtn.textContent = 'Procesando...';
+            checkoutBtn.textContent = 'Validando Stock...';
         }
 
         try {
+            // 3.5 Validar Stock Real en Base de Datos (Seguridad extra)
+            const productIds = items.map(i => i.id);
+            const { data: realProducts, error: stockError } = await window.supabaseClient
+                .from('producto')
+                .select('id_producto, stock, nombre')
+                .in('id_producto', productIds);
+
+            if (stockError) throw new Error('Error al verificar stock: ' + stockError.message);
+
+            for (const item of items) {
+                const dbProd = realProducts.find(p => p.id_producto === item.id);
+                if (!dbProd || dbProd.stock < item.quantity) {
+                    throw new Error(`Stock insuficiente para: ${item.name}. Disponibles: ${dbProd ? dbProd.stock : 0}`);
+                }
+            }
+
+            if (checkoutBtn) checkoutBtn.textContent = 'Procesando...';
             // 4. Obtener id_cliente vinculado a la cuenta
             const { data: cliente, error: cliError } = await window.supabaseClient
                 .from('cliente')
@@ -203,6 +230,25 @@ const Carrito = (() => {
                 .insert(detalles);
 
             if (dtlError) throw dtlError;
+
+            // 6.5 Descontar Stock
+            console.log('[STOCK] Actualizando inventario...');
+            const updatePromises = items.map(item => {
+                const dbProd = realProducts.find(p => p.id_producto === item.id);
+                const nuevoStock = dbProd.stock - item.quantity;
+
+                return window.supabaseClient
+                    .from('producto')
+                    .update({ stock: nuevoStock })
+                    .eq('id_producto', item.id);
+            });
+
+            const updateResults = await Promise.all(updatePromises);
+            const anyUpdateError = updateResults.find(r => r.error);
+            if (anyUpdateError) {
+                console.error('[STOCK ERROR] Falló la actualización crítica de stock:', anyUpdateError.error);
+                // No lanzamos error para no bloquear la venta ya creada, pero lo logueamos
+            }
 
             // 7. Finalizar
             if (window.showToast) {

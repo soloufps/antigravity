@@ -434,6 +434,12 @@ function renderProducts(products, container) {
                          src="${imgSrc}" 
                          alt="${product.name}"
                          onerror="this.src='https://via.placeholder.com/300x250?text=Error+de+Carga'">
+                    
+                    ${product.stock <= 0 ? `
+                    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px] flex items-center justify-center p-4">
+                        <span class="bg-rose-500 text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-full shadow-lg shadow-rose-500/30">Agotado</span>
+                    </div>
+                    ` : ''}
                 </div>
                 <div class="p-5 flex flex-col flex-1">
                     <div class="mb-2">
@@ -455,10 +461,10 @@ function renderProducts(products, container) {
                             <span class="text-xs text-slate-400 font-medium">Precio</span>
                             <span class="text-lg font-black text-slate-900 dark:text-white">$${product.price.toLocaleString()}</span>
                         </div>
-                        <button class="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-primary/20 active:scale-95" 
-                                onclick="Carrito.add(${productJSON});">
-                            <span class="material-symbols-outlined text-lg">add_shopping_cart</span>
-                            Añadir
+                        <button class="flex items-center gap-2 ${product.stock > 0 ? 'bg-primary hover:bg-primary/90 shadow-primary/20 hover:shadow-xl' : 'bg-slate-300 dark:bg-slate-700 cursor-not-allowed opacity-60'} text-white px-4 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95" 
+                                onclick="${product.stock > 0 ? `Carrito.add(${productJSON})` : `window.showToast('Sin Stock', 'Lo sentimos, este producto no tiene unidades disponibles.', 'error')`}">
+                            <span class="material-symbols-outlined text-lg">${product.stock > 0 ? 'add_shopping_cart' : 'block'}</span>
+                            ${product.stock > 0 ? 'Añadir' : 'Agotado'}
                         </button>
                     </div>
                 </div>
