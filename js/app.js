@@ -506,16 +506,4 @@ window.showToast = (title, message, type = 'success') => {
     }, 4000);
 };
 
-// Mostrar campo de email si es invitado en carrito.html
-document.addEventListener('DOMContentLoaded', async () => {
-    if (window.location.pathname.includes('carrito.html')) {
-        const guestEmailContainer = document.getElementById('guest-email-container');
-        if (guestEmailContainer) {
-            const user = await Auth.getUser();
-            if (!user) {
-                guestEmailContainer.classList.remove('hidden');
-                console.log('[DEBUG CARRITO] Modo Invitado Activo');
-            }
-        }
-    }
 });

@@ -139,17 +139,22 @@ const Carrito = (() => {
             return;
         }
 
-        // 3. Identificar Usuario (Sesión o Invitado)
+        // 3. Verificar autenticación (LOGIN OBLIGATORIO)
         const user = await Auth.getUser();
-        let guestEmail = document.getElementById('chk-email')?.value;
-
-        if (!user && !guestEmail) {
-            if (window.showToast) window.showToast('Datos Faltantes', 'Por favor ingresa tu correo para continuar.', 'error');
-            else alert('Por favor ingresa tu correo para continuar');
+        if (!user) {
+            if (window.showToast) {
+                window.showToast('Sesión Requerida', 'Debes iniciar sesión para realizar la compra.', 'error');
+            } else {
+                alert('Debes iniciar sesión para realizar la compra');
+            }
+            // Redirigir a login después de un breve delay para que vean el toast
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1500);
             return;
         }
 
-        const emailToUse = user ? user.email : guestEmail;
+        const emailToUse = user.email;
 
         const checkoutBtn = document.getElementById('checkout-btn');
         if (checkoutBtn) {
@@ -158,31 +163,14 @@ const Carrito = (() => {
         }
 
         try {
-            // 4. Obtener o Crear id_cliente
-            let { data: cliente, error: cliError } = await window.supabaseClient
+            // 4. Obtener id_cliente vinculado a la cuenta
+            const { data: cliente, error: cliError } = await window.supabaseClient
                 .from('cliente')
                 .select('id_cliente')
                 .eq('email', emailToUse)
-                .maybeSingle();
+                .single();
 
-            if (cliError) throw new Error('Error al verificar perfil de cliente');
-
-            if (!cliente) {
-                console.log('[DEBUG CARRITO] Creando perfil de Invitado...');
-                const { data: newCli, error: createError } = await window.supabaseClient
-                    .from('cliente')
-                    .insert([{
-                        email: emailToUse,
-                        nombre: user?.user_metadata?.full_name || 'Invitado',
-                        apellido: '',
-                        telefono: telefono
-                    }])
-                    .select()
-                    .single();
-
-                if (createError) throw createError;
-                cliente = newCli;
-            }
+            if (cliError) throw new Error('No se encontró el perfil de cliente configurado para esta cuenta.');
 
             // 5. Crear Venta
             const totals = updateTotals(items.reduce((acc, item) => acc + (item.price * item.quantity), 0));
